@@ -1,5 +1,4 @@
-﻿# Hide PowerShell Host Console Window Immediately
-$Win32Console = Add-Type -MemberDefinition @"
+﻿$Win32Console = Add-Type -MemberDefinition @"
     [DllImport("user32.dll")]
     public static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
     [DllImport("kernel32.dll")]
@@ -19,7 +18,6 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
-# Native Win32 API for safe memory working set optimization
 $Win32Mem = Add-Type -MemberDefinition @"
     [DllImport("kernel32.dll", SetLastError = true)]
     public static extern bool SetProcessWorkingSetSize(IntPtr hProcess, IntPtr dwMinimumWorkingSetSize, IntPtr dwMaximumWorkingSetSize);
@@ -52,10 +50,8 @@ $form.FormBorderStyle = 'FixedDialog'
 $form.MaximizeBox = $false
 $form.Font = New-Object System.Drawing.Font("Segoe UI", 9)
 
-# System Tray (NotifyIcon) Setup
 $notifyIcon = New-Object System.Windows.Forms.NotifyIcon
 
-# Use shell32 icon #238 (computer/settings icon) for better Windows 11 tray visibility
 try {
     $shell32 = "$env:SystemRoot\System32\shell32.dll"
     $notifyIcon.Icon = [System.Drawing.Icon]::ExtractAssociatedIcon($shell32)
@@ -70,9 +66,8 @@ try {
 }
 
 $notifyIcon.Text = "System Optimizer"
-$notifyIcon.Visible = $false  # Start hidden, only show when minimized
+$notifyIcon.Visible = $false
 
-# Use ContextMenuStrip (modern API, better Windows 11 support)
 $trayMenuStrip = New-Object System.Windows.Forms.ContextMenuStrip
 $menuOpen = New-Object System.Windows.Forms.ToolStripMenuItem
 $menuOpen.Text = "Ac / Goster"
@@ -109,11 +104,9 @@ $form.Add_Shown({
 
 $form.Add_Resize({
     if ($script:formShown -and $form.WindowState -eq [System.Windows.Forms.FormWindowState]::Minimized) {
-        # Form gorev cubugunda kalmaya devam eder (ShowInTaskbar degistirme)
-        # Ek olarak tray'de de gozukur
         $notifyIcon.Visible = $true
         try {
-            $notifyIcon.ShowBalloonTip(2000, "System Optimizer", "Arka planda calisiyor. Tray ikonuna tiklayin.", [System.Windows.Forms.ToolTipIcon]::Info)
+            $notifyIcon.ShowBalloonTip(2000, "System Optimizer", "Arka planda çalışmaya devam ediyor", [System.Windows.Forms.ToolTipIcon]::Info)
         } catch {}
     } elseif ($script:formShown -and $form.WindowState -eq [System.Windows.Forms.FormWindowState]::Normal) {
         $notifyIcon.Visible = $false
@@ -125,7 +118,6 @@ $tabControl.Dock = 'Fill'
 $tabControl.Padding = New-Object System.Drawing.Point(15, 8)
 $form.Controls.Add($tabControl)
 
-# TAB 1: PERFORMANS AYARLARI
 $tabOpt = New-Object System.Windows.Forms.TabPage
 $tabOpt.Text = "Performans Ayarları"
 $tabOpt.BackColor = [System.Drawing.Color]::FromArgb(245, 245, 245)
@@ -138,20 +130,20 @@ $grpProfile.Location = New-Object System.Drawing.Point(15, 10)
 $tabOpt.Controls.Add($grpProfile)
 
 $radBalanced = New-Object System.Windows.Forms.RadioButton
-$radBalanced.Text = "Dengeli (Günlük)"
+$radBalanced.Text = "Dengeli"
 $radBalanced.Location = New-Object System.Drawing.Point(20, 24)
 $radBalanced.Size = New-Object System.Drawing.Size(150, 20)
 $grpProfile.Controls.Add($radBalanced)
 
 $radGaming = New-Object System.Windows.Forms.RadioButton
-$radGaming.Text = "Performans (Oyun)"
+$radGaming.Text = "Performans"
 $radGaming.Location = New-Object System.Drawing.Point(200, 24)
 $radGaming.Size = New-Object System.Drawing.Size(160, 20)
 $radGaming.Checked = $true
 $grpProfile.Controls.Add($radGaming)
 
 $radExtreme = New-Object System.Windows.Forms.RadioButton
-$radExtreme.Text = "Maksimum (Extreme)"
+$radExtreme.Text = "Maksimum"
 $radExtreme.Location = New-Object System.Drawing.Point(390, 24)
 $radExtreme.Size = New-Object System.Drawing.Size(180, 20)
 $grpProfile.Controls.Add($radExtreme)
@@ -280,7 +272,6 @@ function Write-Log {
     param([string]$msg)
 }
 
-# Helper for Safe Registry Key Modifications using Native PowerShell Provider
 function Set-RegProperty {
     param(
         [string]$HivePath,
@@ -326,7 +317,6 @@ $btnApply.Add_Click({
         return
     }
 
-    # Save initial active power scheme
     $rawScheme = (powercfg /getactivescheme 2>$null) -join " "
     $match = [regex]::Match($rawScheme, "([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})")
     if ($match.Success) {
@@ -456,7 +446,6 @@ $btnApply.Add_Click({
     )
 })
 
-# Automatic Restore on Form Close
 $form.Add_FormClosing({
     if ($script:boostApplied) {
         foreach ($s in $script:stoppedServices) {
@@ -468,7 +457,6 @@ $form.Add_FormClosing({
     }
 })
 
-# TAB 2: SİSTEM ANALİZİ
 $tabAnalysis = New-Object System.Windows.Forms.TabPage
 $tabAnalysis.Text = "Sistem Analizi"
 $tabAnalysis.BackColor = [System.Drawing.Color]::FromArgb(245, 245, 245)

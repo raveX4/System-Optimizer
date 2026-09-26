@@ -106,8 +106,6 @@ class SystemOptimizerApp:
         self.root.geometry("480x340")
         self.root.configure(bg="#1e1e2e")
         self.root.resizable(False, False)
-
-        # Hide from taskbar, show in system tray via overrideredirect approach
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
 
         style = ttk.Style()
