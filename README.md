@@ -35,5 +35,4 @@ Hem PowerShell hem de Python tabanlı arayüz seçenekleri sunar.
 
 ## Uyarılar ve Notlar
 
-- Yapılan bazı ağ ve zamanlayıcı değişikliklerinin tam etki göstermesi için bilgisayarınızı yeniden başlatmanız önerilir.
 - Arka plan servislerinin kapatılması geçicidir; optimizasyon aracı kapatıldığında servisler tekrar başlatılır.
